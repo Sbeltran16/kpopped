@@ -17,6 +17,5 @@ Rails.application.routes.draw do
     registrations: 'users/registrations'
   }
 
-  # Defines the root path route ("/")
-  # root "posts#index"
+  get "/me", to: "username"
 end

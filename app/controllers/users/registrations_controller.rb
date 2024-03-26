@@ -1,5 +1,7 @@
 class Users::RegistrationsController < Devise::RegistrationsController
   include RackSessionsFix
+  skip_before_action :authenticate_user!
+
   respond_to :json
   private
 
