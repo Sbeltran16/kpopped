@@ -17,5 +17,5 @@ Rails.application.routes.draw do
     registrations: 'users/registrations'
   }
 
-  get "/me", to: "username"
+  get "/me", to: "user#me"
 end
