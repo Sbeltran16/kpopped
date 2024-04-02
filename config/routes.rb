@@ -17,4 +17,6 @@ Rails.application.routes.draw do
     registrations: 'users/registrations'
   }
   get "/me", to: "users#me"
+
+  resources :posts, only: [:create, :index, :destroy]
 end
