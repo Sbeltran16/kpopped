@@ -3,9 +3,9 @@ class PostsController < ApplicationController
     post = current_user.posts.create(post_params)
 
     if post.persisted?
-      render json: { status: 200, message: 'Success'}
+      render json: { status: 200, message: 'Success' }
     else
-      render json: { status: 400, message: 'Not Successful Missing Params'}
+      render json: { status: 400, message: 'Not Successful Missing Params' }
     end
   end
 
@@ -24,6 +24,6 @@ class PostsController < ApplicationController
   protected
 
   def post_params
-    params.permit([:post])
+    params.require(:post).permit(:post)
   end
 end
