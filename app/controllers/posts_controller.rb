@@ -13,12 +13,9 @@ class PostsController < ApplicationController
     serialized_data = PostSerializer.new(current_user.posts).serializable_hash[:data]
 
     render json: {
-      data: PostSerializer.new(current_user.posts).serializable_hash[:data]
+      data: PostSerializer.new(current_user.posts.reverse_chrono).serializable_hash[:data]
     }
   end
-
-
-
 
 
   protected
