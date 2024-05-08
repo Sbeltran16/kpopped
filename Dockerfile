@@ -13,7 +13,6 @@ ENV RAILS_ENV="production" \
     BUNDLE_PATH="/usr/local/bundle" \
     BUNDLE_WITHOUT="development"
 
-
 # Throw-away build stage to reduce size of final image
 FROM base as build
 
@@ -36,6 +35,11 @@ RUN bundle exec bootsnap precompile app/ lib/
 # Precompiling assets for production without requiring secret RAILS_MASTER_KEY
 RUN SECRET_KEY_BASE_DUMMY=1 ./bin/rails assets:precompile
 
+# Copy the master.key file for Rails credentials
+COPY config/master.key /rails/config/master.key
+
+# Set correct permissions for master.key
+RUN chmod 0600 /rails/config/master.key
 
 # Final stage for app image
 FROM base
@@ -58,5 +62,6 @@ USER rails:rails
 ENTRYPOINT ["/rails/bin/docker-entrypoint"]
 
 # Start the server by default, this can be overwritten at runtime
-EXPOSE 3000
+EXPOSE 3001
 CMD ["./bin/rails", "server"]
+
