@@ -5,4 +5,17 @@ class UsersController < ApplicationController
       data: UserSerializer.new(current_user).serializable_hash[:data][:attributes]
     }
   end
+
+  def show
+    user = User.find_by(username: params[:username])
+
+    if user
+      render json: {
+        status: 200,
+        data: UserSerializer.new(user).serializable_hash[:data][:attributes]
+      }
+    else
+      render json: {status: 404, error: "User not found", status: :not_found}
+    end
+  end
 end
