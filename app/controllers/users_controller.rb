@@ -15,7 +15,7 @@ class UsersController < ApplicationController
         data: UserSerializer.new(user).serializable_hash[:data][:attributes]
       }
     else
-      render json: {status: 404, error: "User not found", status: :not_found}
+      render json: {status: 404, error: "User not found"}
     end
   end
 
