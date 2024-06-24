@@ -18,4 +18,10 @@ class UsersController < ApplicationController
       render json: {status: 404, error: "User not found", status: :not_found}
     end
   end
+
+  def search
+    query = params[:query]
+    users = User.where("username LIKE ?", "%#{query}%").limit(5)
+    render json: users.map { |user| {username: user.username}}
+  end
 end
