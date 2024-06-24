@@ -24,7 +24,8 @@ Rails.application.routes.draw do
   get "/search_users", to: "users#search"
 
   #Follow Routes
-  post "/follows", to: "follows#create"
-  delete "/follows/:id" to: "follows#destroy"
+  resources :follows, only: [:create, :destroy]
+  get "/follow-status/:username", to: "follows#status"
+  get "/follows/followed_posts", to: "follows#followed_posts"
 
 end
