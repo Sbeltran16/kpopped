@@ -20,8 +20,8 @@ Rails.application.routes.draw do
   resources :posts, only: [:create, :index, :destroy]
 
   #Users Routes
-  get "/:username", to: "users#show", as: :user_profile
   get "/search_users", to: "users#search"
+  get "/:username", to: "users#show", as: :user_profile
 
   #Follow Routes
   resources :follows, only: [:create, :destroy]
