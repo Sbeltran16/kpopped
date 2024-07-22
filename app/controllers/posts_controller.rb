@@ -17,10 +17,11 @@ class PostsController < ApplicationController
     }
   end
 
+
   def destroy
     current_user.posts.find_by(id: params[:id]).destroy
 
-    render json: {status: 200, message: "successful destroy"}
+    render json: {status: 200, message: "successful deletion"}
   end
 
 

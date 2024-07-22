@@ -7,6 +7,7 @@ class User < ApplicationRecord
          :jwt_authenticatable, jwt_revocation_strategy: self
 
   has_many :posts
+  has_many :likes
 
   #Users who follow the current user
   has_many :followers_relationships, foreign_key: :followee_id, class_name: 'Follow'
