@@ -32,4 +32,7 @@ Rails.application.routes.draw do
   get "/follow-status/:username", to: "follows#status"
   get "/follows/followed_posts", to: "follows#followed_posts"
 
+  #Artists Routes
+  get 'artists/:name', to: 'artists#show'
+
 end

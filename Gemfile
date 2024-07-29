@@ -29,6 +29,11 @@ gem "jbuilder"
 # Cors
 gem "rack-cors"
 
+#nokogiri
+gem 'nokogiri'
+
+
+
 # Devise JWT
 gem 'devise'
 gem 'devise-jwt'
