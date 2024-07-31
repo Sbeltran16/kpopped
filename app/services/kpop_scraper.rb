@@ -1,13 +1,15 @@
 require 'nokogiri'
 require 'open-uri'
 require 'uri'
+require 'net/http'
+require 'json'
 
 class KpopScraper
   BASE_URL = 'https://kpopping.com'
 
   def initialize(group_name)
-
     formatted_group_name = group_name.strip.gsub(' ', '-')
+    @group_name = group_name
     @group_url = "#{BASE_URL}/profiles/group/#{group_name}"
   end
 
@@ -50,7 +52,7 @@ class KpopScraper
   end
 
   def scrape_discography(doc)
-    doc.css('#group-discography .album-covers .item').map do |album|
+    albums = doc.css('#group-discography .album-covers .item').map do |album|
       {
         title: album.css('h3').text.strip,
         release_date: album.css('time').attr('datetime')&.value,
@@ -58,6 +60,34 @@ class KpopScraper
         cover_image: prepend_base_url(album.css('figure img').attr('src')&.value)
       }
     end
+
+    show_more_button = doc.at_css('#group-discography .btn[data-ajax-url]')
+    if show_more_button
+      ajax_url = show_more_button['data-ajax-url']
+      more_albums = fetch_additional_discography(ajax_url)
+      albums.concat(more_albums)
+    end
+
+    albums
+  end
+
+  def fetch_additional_discography(ajax_url)
+    uri = URI.join(BASE_URL, ajax_url)
+    response = Net::HTTP.get(uri)
+    json_data = JSON.parse(response)
+
+    doc = Nokogiri::HTML(json_data['html'])
+    doc.css('.album-covers .item').map do |album|
+      {
+        title: album.css('h3').text.strip,
+        release_date: album.css('time').attr('datetime')&.value,
+        tracks: album.css('p').text.strip.to_i,
+        cover_image: prepend_base_url(album.css('figure img').attr('src')&.value)
+      }
+    end
+  rescue StandardError => e
+    puts "Error fetching additional discography: #{e.message}"
+    []
   end
 
   def scrape_latest_images(doc)
@@ -95,5 +125,3 @@ class KpopScraper
     URI.join(BASE_URL, relative_url).to_s
   end
 end
-
-
