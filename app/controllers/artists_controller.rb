@@ -1,8 +1,9 @@
 class ArtistsController < ApplicationController
   def show
-    group_name = params[:name]
-    scraper = KpopScraper.new(group_name)
-    data = scraper.scrape_group_data
+    name = params[:name]
+    type = params[:type] == 'idol' ? :idol : :group
+    scraper = type == :idol ? IdolScraper.new(name) : KpopScraper.new(name)
+    data = scraper.scrape_data
     render json: data
   end
 end

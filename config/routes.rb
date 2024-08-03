@@ -33,6 +33,6 @@ Rails.application.routes.draw do
   get "/follows/followed_posts", to: "follows#followed_posts"
 
   #Artists Routes
-  get 'artists/:name', to: 'artists#show'
-
+  get 'artists/:name', to: 'artists#show', defaults: { type: 'group' }
+  get 'idols/:name', to: 'artists#show', defaults: { type: 'idol' }
 end
