@@ -5,18 +5,15 @@ require 'concurrent-ruby'
 
 class KpopScraper
   BASE_URL = 'https://kpopping.com'
-  DBKPOP_BASE_URL = 'https://dbkpop.com/group'
 
   def initialize(group_name)
     formatted_group_name = group_name.strip.gsub(/\s+/, '-').downcase
     @group_url = "#{BASE_URL}/profiles/group/#{formatted_group_name}"
-    @dbkpop_url = "#{DBKPOP_BASE_URL}/#{formatted_group_name}"
   end
 
   def scrape_data
     # Fetch the data concurrently to save time
     group_data_future = Concurrent::Future.execute { fetch_and_parse(@group_url) }
-    latest_images_future = Concurrent::Future.execute { fetch_latest_images }
 
     begin
       doc = group_data_future.value # Waits for the result of fetching group data
@@ -25,7 +22,7 @@ class KpopScraper
         profile_data: scrape_profile_data(doc),
         group_pose_image: scrape_group_pose_image(doc),
         discography: scrape_discography(doc),
-        group_latest_pictures: latest_images_future.value,
+        group_latest_pictures: scrape_latest_images(doc),
         members: scrape_members(doc),
         group_stats: scrape_group_stats(doc)
       }
@@ -38,15 +35,10 @@ class KpopScraper
   private
 
   def fetch_and_parse(url)
-    doc = Nokogiri::HTML(URI.open(url))
-    doc
+    Nokogiri::HTML(URI.open(url))
   rescue OpenURI::HTTPError, URI::InvalidURIError => e
     puts "Fetch error: #{e.message}"
     Nokogiri::HTML('') # Return an empty document on failure
-  end
-
-  def fetch_latest_images
-    fetch_and_parse(@dbkpop_url).css('.foogallery .fg-item .fg-thumb').map { |img| img['href'] }
   end
 
   def scrape_profile_data(doc)
@@ -68,6 +60,12 @@ class KpopScraper
         tracks: album.at_css('p')&.text&.strip.to_i,
         cover_image: prepend_base_url(album.at_css('figure img')&.attr('src'))
       }
+    end
+  end
+
+  def scrape_latest_images(doc)
+    doc.css('#group-latest-pictures .matrix img').map do |img|
+      prepend_base_url(img['src'])
     end
   end
 

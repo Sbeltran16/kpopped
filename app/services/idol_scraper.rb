@@ -5,28 +5,24 @@ require 'concurrent-ruby'
 
 class IdolScraper
   BASE_URL = 'https://kpopping.com'
-  DBKPOP_BASE_URL = 'https://dbkpop.com/idol'
 
   def initialize(idol_name)
     formatted_idol_name = idol_name.strip.gsub(' ', '-').downcase
     @idol_name = idol_name
     @idol_url = "#{BASE_URL}/profiles/idol/#{formatted_idol_name}"
-    @dbkpop_url = "#{DBKPOP_BASE_URL}/#{formatted_idol_name}"
   end
 
   def scrape_data
-    # Fetch the data concurrently to save time
     idol_data_future = Concurrent::Future.execute { fetch_and_parse(@idol_url) }
-    dbkpop_images_future = Concurrent::Future.execute { fetch_dbkpop_latest_images }
 
     begin
-      doc = idol_data_future.value # Waits for the result of fetching idol data
+      doc = idol_data_future.value 
 
       {
         profile_data: scrape_profile_data(doc),
         pose_image: scrape_pose_image(doc),
         discography: scrape_discography(doc),
-        latest_pictures: dbkpop_images_future.value,
+        latest_pictures: scrape_latest_images(doc),
         stats: scrape_stats(doc)
       }
     rescue StandardError => e
@@ -45,10 +41,6 @@ class IdolScraper
     Nokogiri::HTML('') # Return an empty document on failure
   end
 
-  def fetch_dbkpop_latest_images
-    fetch_and_parse(@dbkpop_url).css('.foogallery .fg-item .fg-thumb').map { |img| img['href'] }
-  end
-
   def scrape_profile_data(doc)
     {
       name: doc.css('section h1').text.strip
@@ -56,11 +48,8 @@ class IdolScraper
   end
 
   def scrape_pose_image(doc)
-    # Select the link element with the rel attribute set to "image_src"
     link_element = doc.at_css('link[rel="image_src"]')
-    # Extract the href attribute from the link element
     image_url = link_element&.attr('href')
-    # Return the URL or nil if the element or attribute is not found
     image_url ? prepend_base_url(image_url) : nil
   end
 
@@ -103,6 +92,12 @@ class IdolScraper
     []
   end
 
+  def scrape_latest_images(doc)
+    doc.css('#idol-latest-pictures .matrix img').map do |img|
+      prepend_base_url(img['src'])
+    end
+  end
+
   def scrape_stats(doc)
     stats = {}
     doc.css('.data-grid.data-grid-1.data-grid-auto .cell').each do |cell|
@@ -115,11 +110,8 @@ class IdolScraper
 
   def prepend_base_url(relative_url)
     return nil unless relative_url
-
-    # Check if the URL is already absolute
     return relative_url if URI.parse(relative_url).absolute?
 
-    # Combine the base URL with the relative URL
     URI.join(BASE_URL, relative_url).to_s
   end
 end

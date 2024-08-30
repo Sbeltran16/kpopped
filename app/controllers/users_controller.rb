@@ -24,4 +24,18 @@ class UsersController < ApplicationController
     users = User.where("username LIKE ?", "%#{query}%").limit(5)
     render json: users.map { |user| {username: user.username}}
   end
+
+  def update
+    if current_user.update(user_params)
+      render json: { status: 200, data: UserSerializer.new(current_user).serializable_hash[:data][:attributes] }
+    else
+      render json: { status: 422, errors: current_user.errors.full_messages }
+    end
+  end
+
+  private
+
+  def user_params
+    params.require(:user).permit(:username, :email, :password, :bio, :profile_picture, :profile_banner)
+  end
 end

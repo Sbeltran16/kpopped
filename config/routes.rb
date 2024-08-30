@@ -26,6 +26,7 @@ Rails.application.routes.draw do
   # Users Routes
   get "/search_users", to: "users#search"
   get "/:username", to: "users#show", as: :user_profile
+  patch "/me", to: "users#update"
 
   # Follow Routes
   resources :follows, only: [:create, :destroy]

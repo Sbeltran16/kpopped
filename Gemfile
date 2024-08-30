@@ -32,6 +32,10 @@ gem "rack-cors"
 #nokogiri
 gem 'nokogiri'
 
+# #AWS s3 storage
+# gem 'aws-sdk-s3', '~> 1.118'
+
+
 
 
 # Devise JWT

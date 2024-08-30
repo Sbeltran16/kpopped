@@ -17,6 +17,12 @@ class User < ApplicationRecord
   has_many :followees_relationships, foreign_key: :follower_id, class_name: 'Follow'
   has_many :followees, through: :followees_relationships, source: :followee
 
+  #User image and bio addition
+  has_one_attached :profile_picture
+  has_one_attached :profile_banner
+  validates :bio, length: { maximum: 300 }
+
+
   def following?(other_user)
     followees.include?(other_user)
   end
